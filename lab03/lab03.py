@@ -17,7 +17,20 @@ def mysort(lst: List[T], compare: Callable[[T, T], int]) -> List[T]:
     right element, 1 if the left is larger than the right, and 0 if the two
     elements are equal.
     """
-    pass
+    returnList = []
+    returnList.append(lst[0])
+    for element in lst[1:]:
+      for i in range(0,len(returnList)):
+        smallBig = compare(element, returnList[i])
+        if(smallBig==0):
+          returnList.insert(i, element)
+          break
+        elif(smallBig==-1):
+          returnList.insert(i, element)
+          break
+        elif(len(returnList)-1==i and smallBig==1):
+          returnList.append(element)
+    return returnList
 
 def mybinsearch(lst: List[T], elem: S, compare: Callable[[T, S], int]) -> int:
     """
@@ -27,7 +40,21 @@ def mybinsearch(lst: List[T], elem: S, compare: Callable[[T, S], int]) -> int:
     position of the first (leftmost) match for elem in lst. If elem does not
     exist in lst, then return -1.
     """
-    pass
+    start = 0
+    end = len(lst) - 1
+    index = -1
+
+    while start <= end:
+        middle = (start + end) // 2
+        if( compare(lst[middle],elem) == 0):
+            index = middle
+            end = middle -1
+        elif(compare(lst[middle],elem) == -1):
+            start = middle + 1
+        else:
+            end =  middle - 1
+
+    return index
 
 class Student():
     """Custom class to test generic sorting and searching."""
@@ -112,7 +139,16 @@ class PrefixSearcher():
         Initializes a prefix searcher using a document and a maximum
         search string length k.
         """
-        pass
+        self.document = document
+        self.k = k
+        self.allPrefixes = []
+        for i in range(0,len(document)):
+          if(len(document)-k<=i):
+            self.allPrefixes.append(document[i:])
+          else:
+            self.allPrefixes.append(document[i:i+k])
+        intcmp = lambda x,y:  0 if x == y else (-1 if x < y else 1)
+        self.allPrefixes=mysort(self.allPrefixes,intcmp)
 
     def search(self, q):
         """
@@ -121,7 +157,11 @@ class PrefixSearcher():
         length up to n). If q is longer than n, then raise an
         Exception.
         """
-        pass
+        if(len(q)>self.k):
+          raise Exception(f'{q} is large than all prefixes in the list')
+        else:
+          strcmp = lambda x,y: 0 if x[:len(y)]==y else (-1 if x[:len(y)]<y else 1)
+          return True if mybinsearch(self.allPrefixes,q,strcmp)!= -1 else False
 
 # 30 Points
 def test2():
@@ -163,21 +203,31 @@ class SuffixArray():
         """
         Creates a suffix array for document (a string).
         """
-        pass
-
+        self.document = document
+        self.suffixArray = list(range(0,len(document)))
+        def getDoc():
+          return self.document
+        strCompare = lambda x,y: 0 if getDoc()[x:]==getDoc()[y:] else(-1 if getDoc()[x:]<getDoc()[y:] else 1)
+        self.suffixArray = mysort(self.suffixArray,strCompare)
 
     def positions(self, searchstr: str):
         """
         Returns all the positions of searchstr in the documented indexed by the suffix array.
         """
-        pass
+        def getDoc():
+          return self.document
+        strCompare = lambda x,y: 0 if getDoc()[x:][:len(y)]==y else(-1 if getDoc()[x:][:len(y)]<y else 1)
+        foundInd = mybinsearch(self.suffixArray,searchstr,strCompare)
+        return [foundInd]
 
     def contains(self, searchstr: str):
         """
         Returns true of searchstr is coontained in document.
         """
-        pass
-
+        def getDoc():
+          return self.document
+        strCompare = lambda x,y: 0 if getDoc()[x:][:len(y)]==y else(-1 if getDoc()[x:][:len(y)]<y else 1)
+        return True if mybinsearch(self.suffixArray,searchstr,strCompare)!=-1 else False
 # 40 Points
 def test3():
     """Test suffix arrays."""
