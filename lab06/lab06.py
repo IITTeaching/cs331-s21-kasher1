@@ -51,6 +51,19 @@ def check_delimiters(expr):
     delim_closers = '})]>'
 
     ### BEGIN SOLUTION
+    val = Stack()
+    for i in expr:
+      if(i in delim_openers):
+        val.push(i)
+      for t in range(0,len(delim_closers)):
+        if(i == delim_closers[t]):
+          if(val.empty() or delim_openers[t]!=val.peek()):
+            return False
+          val.pop()
+    if(val.empty()):
+      return True
+    else:
+      return False
     ### END SOLUTION
 
 ################################################################################
@@ -121,6 +134,35 @@ def infix_to_postfix(expr):
     postfix = []
     toks = expr.split()
     ### BEGIN SOLUTION
+    for i in toks:
+      repeat = True
+      while repeat:
+        if(i.isdigit()):
+          postfix.append(i)
+          repeat = False
+        elif(ops.peek()=='(' or ops.empty()):
+          ops.push(i)
+          repeat = False
+        elif(i=='('):
+          ops.push(i)
+          repeat = False
+        elif(i==')'):
+          while(ops.peek()!='('):
+            postfix.append(ops.pop())
+          ops.pop()
+          repeat = False
+        elif(i in '+-*/'):
+          if(prec[i]>prec[ops.peek()]):
+            ops.push(i)
+            repeat = False
+          elif(prec[i]==prec[ops.peek()]):
+            postfix.append(ops.pop())
+            ops.push(i)
+            repeat = False
+          elif(prec[i]<prec[ops.peek()]):
+            postfix.append(ops.pop())
+    while(ops.empty()==False):
+      postfix.append(ops.pop())
     ### END SOLUTION
     return ' '.join(postfix)
 
@@ -160,25 +202,50 @@ class Queue:
         self.data = [None] * limit
         self.head = -1
         self.tail = -1
-
-    ### BEGIN SOLUTION
-    ### END SOLUTION
-
     def enqueue(self, val):
         ### BEGIN SOLUTION
+          self.tail +=1
+        if(self.tail==len(self.data)):
+          self.tail=0
+        if(self.tail==self.head and self.empty()==False):
+          raise RuntimeError
+        if(self.head==-1):
+          self.head=0
+        self.data[self.tail] = val
         ### END SOLUTION
 
     def dequeue(self):
         ### BEGIN SOLUTION
+          if(self.empty()==True):
+          raise RuntimeError
+        else:
+          rVal = self.data[self.head]
+          self.data[self.head]=None
+          self.head+=1
+          if(self.head==len(self.data)):
+            self.head = 0
+          if(self.data[self.head]==None):
+            self.head = -1
+            self.tail = -1
+          return rVal
         ### END SOLUTION
 
     def resize(self, newsize):
         assert(len(self.data) < newsize)
         ### BEGIN SOLUTION
+          newList = []
+        for i in self.__iter__():
+          newList.append(i)
+        for i in range(len(self.data)+1,newsize+1):
+          newList.append(None)
+        self.tail = len(self.data)-1
+        self.head = 0
+        self.data = newList
         ### END SOLUTION
 
     def empty(self):
         ### BEGIN SOLUTION
+          return self.head == -1 and self.tail == -1
         ### END SOLUTION
 
     def __bool__(self):
@@ -194,6 +261,17 @@ class Queue:
 
     def __iter__(self):
         ### BEGIN SOLUTION
+          if(self.empty()==True):
+          yield
+        else:
+          curr = self.head
+          while self.tail-1 != curr:
+            yield self.data[curr]
+            curr= curr+1
+            if(curr == len(self.data)):
+              curr = 0
+          if(self.head==self.tail):
+            yield self.data[self.head-1]
         ### END SOLUTION
 
 ################################################################################
@@ -220,66 +298,66 @@ def test_queue_implementation_1():
 
 # points: 13
 def test_queue_implementation_2():
-	tc = TestCase()
+    tc = TestCase()
 
-	q = Queue(10)
+    q = Queue(10)
 
-	for i in range(6):
-	    q.enqueue(i)
+    for i in range(6):
+        q.enqueue(i)
 
-	tc.assertEqual(q.data.count(None), 4)
+    tc.assertEqual(q.data.count(None), 4)
 
-	for i in range(5):
-	    q.dequeue()
+    for i in range(5):
+        q.dequeue()
 
-	tc.assertFalse(q.empty())
-	tc.assertEqual(q.data.count(None), 9)
-	tc.assertEqual(q.head, q.tail)
-	tc.assertEqual(q.head, 5)
+    tc.assertFalse(q.empty())
+    tc.assertEqual(q.data.count(None), 9)
+    tc.assertEqual(q.head, q.tail)
+    tc.assertEqual(q.head, 5)
 
-	for i in range(9):
-	    q.enqueue(i)
+    for i in range(9):
+        q.enqueue(i)
 
-	with tc.assertRaises(RuntimeError):
-	    q.enqueue(10)
+    with tc.assertRaises(RuntimeError):
+        q.enqueue(10)
 
-	for x, y in zip(q, [5] + list(range(9))):
-	    tc.assertEqual(x, y)
+    for x, y in zip(q, [5] + list(range(9))):
+        tc.assertEqual(x, y)
 
-	tc.assertEqual(q.dequeue(), 5)
-	for i in range(9):
-	    tc.assertEqual(q.dequeue(), i)
+    tc.assertEqual(q.dequeue(), 5)
+    for i in range(9):
+        tc.assertEqual(q.dequeue(), i)
 
-	tc.assertTrue(q.empty())
+    tc.assertTrue(q.empty())
 
 # points: 14
 def test_queue_implementation_3():
-	tc = TestCase()
+    tc = TestCase()
 
-	q = Queue(5)
-	for i in range(5):
-	    q.enqueue(i)
-	for i in range(4):
-	    q.dequeue()
-	for i in range(5, 9):
-	    q.enqueue(i)
+    q = Queue(5)
+    for i in range(5):
+        q.enqueue(i)
+    for i in range(4):
+        q.dequeue()
+    for i in range(5, 9):
+        q.enqueue(i)
 
-	with tc.assertRaises(RuntimeError):
-	    q.enqueue(10)
+    with tc.assertRaises(RuntimeError):
+        q.enqueue(10)
 
-	q.resize(10)
+    q.resize(10)
 
-	for x, y in zip(q, range(4, 9)):
-	    tc.assertEqual(x, y)
+    for x, y in zip(q, range(4, 9)):
+        tc.assertEqual(x, y)
 
-	for i in range(9, 14):
-	    q.enqueue(i)
+    for i in range(9, 14):
+        q.enqueue(i)
 
-	for i in range(4, 14):
-	    tc.assertEqual(q.dequeue(), i)
+    for i in range(4, 14):
+        tc.assertEqual(q.dequeue(), i)
 
-	tc.assertTrue(q.empty())
-	tc.assertEqual(q.head, -1)
+    tc.assertTrue(q.empty())
+    tc.assertEqual(q.head, -1)
 
 ################################################################################
 # TEST HELPERS
