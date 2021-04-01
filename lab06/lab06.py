@@ -204,7 +204,7 @@ class Queue:
         self.tail = -1
     def enqueue(self, val):
         ### BEGIN SOLUTION
-          self.tail +=1
+        self.tail +=1
         if(self.tail==len(self.data)):
           self.tail=0
         if(self.tail==self.head and self.empty()==False):
@@ -216,7 +216,7 @@ class Queue:
 
     def dequeue(self):
         ### BEGIN SOLUTION
-          if(self.empty()==True):
+        if(self.empty()==True):
           raise RuntimeError
         else:
           rVal = self.data[self.head]
@@ -233,7 +233,7 @@ class Queue:
     def resize(self, newsize):
         assert(len(self.data) < newsize)
         ### BEGIN SOLUTION
-          newList = []
+        newList = []
         for i in self.__iter__():
           newList.append(i)
         for i in range(len(self.data)+1,newsize+1):
@@ -245,7 +245,7 @@ class Queue:
 
     def empty(self):
         ### BEGIN SOLUTION
-          return self.head == -1 and self.tail == -1
+        return self.head == -1 and self.tail == -1
         ### END SOLUTION
 
     def __bool__(self):
@@ -261,7 +261,7 @@ class Queue:
 
     def __iter__(self):
         ### BEGIN SOLUTION
-          if(self.empty()==True):
+        if(self.empty()==True):
           yield
         else:
           curr = self.head
