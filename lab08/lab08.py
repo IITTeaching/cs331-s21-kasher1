@@ -24,10 +24,38 @@ class Heap:
 
     def heapify(self, idx=0):
         ### BEGIN SOLUTION
+        while True:
+          lNode = self._left(idx)
+          rNode = self._right(idx)
+          node = None
+          if(lNode<len(self.data) and self.key(self.data[lNode])>self.key(self.data[idx])):
+            self.data[idx], self.data[lNode] = self.data[lNode], self.data[idx]
+            node = True
+          if(rNode<len(self.data) and self.key(self.data[rNode])>self.key(self.data[idx])):
+            self.data[idx], self.data[rNode] = self.data[rNode], self.data[idx]
+            if(node):
+              self.data[lNode], self.data[rNode] = self.data[rNode], self.data[lNode]
+            node = False
+          if(node):
+            idx = lNode
+          elif(node==False):
+            idx = rNode
+          elif(node==None):
+            break
         ### END SOLUTION
 
     def add(self, x):
         ### BEGIN SOLUTION
+        self.data.append(x)
+        idx = len(self.data)-1
+        if(len(self.data)>1):
+          pidx = self._parent(idx)
+          while(self.key(self.data[idx])>self.key(self.data[pidx])):
+            self.data[idx], self.data[pidx] = self.data[pidx], self.data[idx]
+            idx, pidx = pidx, self._parent(pidx)
+            if(pidx<0):
+              break
+            
         ### END SOLUTION
 
     def peek(self):
@@ -121,7 +149,6 @@ def test_key_heap_5():
 
     for x in lst:
         h.add(x)
-
     for x in reversed(sorted(range(-1000, 1000, 3), key=lambda x:abs(x))):
         tc.assertEqual(x, h.pop())
 
@@ -130,6 +157,23 @@ def test_key_heap_5():
 ################################################################################
 def running_medians(iterable):
     ### BEGIN SOLUTION
+    minH = Heap()
+    maxH = Heap(lambda x:-x)
+    result = []
+    for i,x in enumerate(iterable):
+      maxH.add(x)
+      minH.add(maxH.pop())
+      if(len(maxH)<len(minH)-1):
+        maxH.add(minH.pop())
+        result.append((minH.peek()+maxH.peek())/2)
+      else:
+        result.append(minH.peek())
+    return result
+      
+
+
+
+
     ### END SOLUTION
 
 ################################################################################
@@ -174,8 +218,14 @@ def test_median_3():
 ################################################################################
 def topk(items, k, keyf):
     ### BEGIN SOLUTION
+    h = Heap(keyf)
+    result = []
+    for i in items:
+      h.add(i)
+    for i in range(k):
+      result.append(h.pop())
+    return result
     ### END SOLUTION
-
 ################################################################################
 # TESTS
 ################################################################################
@@ -213,6 +263,7 @@ def say_success():
 # MAIN
 ################################################################################
 def main():
+    print(running_medians_naive(range(10)))
     for t in [test_key_heap_1,
               test_key_heap_2,
               test_key_heap_3,
