@@ -263,7 +263,6 @@ def say_success():
 # MAIN
 ################################################################################
 def main():
-    print(running_medians_naive(range(10)))
     for t in [test_key_heap_1,
               test_key_heap_2,
               test_key_heap_3,
