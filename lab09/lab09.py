@@ -5,7 +5,6 @@ import random
 
 class HBStree:
     """This is an immutable binary search tree with history.
-
     Each insert and delete operation creates a new version of the tree. The data
     structure allows past versions to be accessed.
     """
@@ -53,6 +52,16 @@ class HBStree:
         KeyError, if key does not exist.
         """
         # BEGIN SOLUTION
+        cur = self.root_versions[len(self.root_versions)-1]
+        while(True):
+            if cur.val == key:
+                return key
+            elif cur.val < key and cur.right != None:
+                cur = cur.right
+            elif cur.val > key and cur.left != None:
+                cur = cur.left
+            else:
+                raise KeyError
         # END SOLUTION
 
     def __contains__(self, el):
@@ -60,6 +69,11 @@ class HBStree:
         Return True if el exists in the current version of the tree.
         """
         # BEGIN SOLUTION
+        try:
+            self.__getitem__(el)
+            return True
+        except:
+            return False
         # END SOLUTION
 
     def insert(self,key):
@@ -69,11 +83,51 @@ class HBStree:
         from creating a new version.
         """
         # BEGIN SOLUTION
+        def add(head, key):
+            if not head:
+                return self.INode(key,None,None)
+            elif head.val>key:
+                return self.INode(head.val,add(head.left,key),head.right)
+            elif head.val<key:
+                return self.INode(head.val, head.left, add(head.right,key))
+            else:
+                return self.INode(key,None,None)
+        if self.__contains__(key):
+            return
+        if len(self.root_versions)<2:
+            self.root_versions.append(self.INode(key,None,None))
+            return
+        self.root_versions.append(add(self.root_versions[-1],key))
         # END SOLUTION
 
     def delete(self,key):
         """Delete key from the tree, creating a new version of the tree. If key does not exist in the current version of the tree, then do nothing and refrain from creating a new version."""
         # BEGIN SOLUTION
+        def delete(head,key):
+            if head.val > key:
+                return self.INode(head.val, delete(head.left,key),head.right)
+            elif head.val<key:
+                return self.INode(head.val,head.left,delete(head.right,key))
+            else:
+                if not(head.left or head.right):
+                    return None
+                elif head.right and not head.left:
+                    return head.right
+                elif head.left and not head.right:
+                    return head.left
+                else:
+                    next_head = head.left
+                    while True:
+                        if not next_head.right:
+                            break
+                        next_head = next_head.right
+                    return self.INode(next_head.val,delete(head.left,next_head.val),head.right)
+        if not self.__contains__(key):
+            return
+        if len(self.root_versions) == 1:
+            self.root_versions.append(None)
+            return
+        self.root_versions.append(delete(self.root_versions[-1],key))
         # END SOLUTION
 
     @staticmethod
@@ -145,6 +199,21 @@ class HBStree:
         if timetravel < 0 or timetravel >= len(self.root_versions):
             raise IndexError(f"valid versions for time travel are 0 to {len(self.root_versions) -1}, but was {timetravel}")
         # BEGIN SOLUTION
+        head = self.root_versions[-1-timetravel]
+        def create(head,list):
+            if head == None:
+                return list
+            if head.left != None:
+                list = create(head.left,list)
+            if head.right != None:
+                list.append(head.val)
+                list = create(head.right,list)
+                return list
+            list.append(head.val)
+            return list
+        l = create(head,[])
+        iter = l.__iter__()
+        return iter
         # END SOLUTION
 
     @staticmethod
