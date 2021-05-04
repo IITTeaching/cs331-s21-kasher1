@@ -199,7 +199,6 @@ def test_ll_fix_simple():
     for x in [3, 2, 1]:
 
         t.add(x)
-    print(t.pprint())
     tc.assertEqual(height(t.root), 2)
     tc.assertEqual([t.root.left.val, t.root.val, t.root.right.val], [1, 2, 3])
 
