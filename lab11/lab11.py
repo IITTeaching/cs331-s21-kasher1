@@ -7,25 +7,25 @@ def quicksort(lst,pivot_fn):
 
 def qsort(lst,low,high,pivot_fn):
     ### BEGIN SOLUTION
-      if(high-low<=1):
-        if(high-low==1):
-          if(lst[low]>lst[high]):
-            lst[low],lst[high] = lst[high], lst[low]
-        return
-      else:
-        pivot = pivot_fn(lst,low,high)
-        i = low
-        j = high
-        while(i<j):
-          if lst[i]>=pivot and lst[j]<=pivot:
-            lst[i],lst[j] = lst[j], lst[i]
-          if lst[i]<pivot:
-            i+=1
-          if lst[j]>pivot:
-            j-=1
+    if(high-low<=1):
+      if(high-low==1):
+        if(lst[low]>lst[high]):
+          lst[low],lst[high] = lst[high], lst[low]
+      return
+    else:
+      pivot = pivot_fn(lst,low,high)
+      i = low
+      j = high
+      while(i<j):
+        if lst[i]>=pivot and lst[j]<=pivot:
+          lst[i],lst[j] = lst[j], lst[i]
+        if lst[i]<pivot:
+          i+=1
+        if lst[j]>pivot:
+          j-=1
           
-        qsort(lst,low,j,pivot_fn)
-        qsort(lst,j+1,high,pivot_fn)
+      qsort(lst,low,j,pivot_fn)
+      qsort(lst,j+1,high,pivot_fn)
     ### END SOLUTION
 
 def pivot_first(lst,low,high):
